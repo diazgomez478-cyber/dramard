@@ -1,48 +1,59 @@
-import streamlit as st, urllib.parse, random, requests, io
+import streamlit as st, urllib.parse, random, requests, io, time
 from PIL import Image
 
 st.set_page_config(page_title="DRAMA RD", page_icon="🎬")
-st.title("🎬 DRAMA RD - VIDEO QUE SI ABRE")
-st.caption("🇩🇴 Victor el natural")
+st.title("🎬 DRAMA RD - V6")
+st.caption("🇩🇴 Victor el natural - No falla")
 
 tema = st.text_input("Tema", "Trump el terror de la casa blanca")
 prota = st.text_input("Prota", "Victor el natural")
 
-if st.button("🔥 CREAR VIDEO"):
+def crear_imagen(prompt, intento=0):
+    try:
+        seed = random.randint(1,999999)
+        url = f"https://image.pollinations.ai/prompt/{urllib.parse.quote(prompt)}?width=512&height=768&seed={seed}&nologo=true&nofeed=true"
+        headers = {"User-Agent": "Mozilla/5.0"}
+        r = requests.get(url, headers=headers, timeout=90)
+        if r.status_code == 200 and len(r.content) > 5000:
+            img = Image.open(io.BytesIO(r.content)).convert("RGB")
+            return img.resize((512,768))
+    except Exception as e:
+        print(f"Error: {e}")
+    return None
+
+if st.button("🔥 CREAR VIDEO", use_container_width=True):
     imgs=[]
+    progress = st.progress(0)
     for i in range(3):
         st.write(f"Creando escena {i+1}/3...")
-        try:
-            url=f"https://image.pollinations.ai/prompt/{urllib.parse.quote(f'dominican man {prota} {tema} cinematic') }?width=512&height=768&seed={random.randint(1,99999)}&nologo=true"
-            r=requests.get(url,timeout=60)
-            img=Image.open(io.BytesIO(r.content)).convert("RGB").resize((512,768))
-            st.image(img, caption=f"Escena {i+1}")
+        img = None
+        for intento in range(3): # 3 intentos por escena
+            p = f"dominican man {prota}, {tema}, scene {i+1}, cinematic dramatic lighting, 8k"
+            img = crear_imagen(p, intento)
+            if img:
+                break
+            time.sleep(2)
+
+        if img:
+            st.image(img, caption=f"Escena {i+1} OK")
             imgs.append(img)
-        except Exception as e:
-            st.write(f"Error escena {i+1}: {e}")
+        else:
+            st.warning(f"Escena {i+1} falló, usando anterior")
+            if imgs: imgs.append(imgs[-1]) # duplica la anterior si falla
 
-    if imgs:
-        # CREAR GIF - ESTE SI ABRE SIEMPRE EN EL CELULAR
+        progress.progress((i+1)/3)
+
+    if len(imgs) >= 1:
+        # Asegurar 3 imagenes
+        while len(imgs) < 3:
+            imgs.append(imgs[0])
+
         gif_path="/tmp/drama.gif"
-        imgs[0].save(gif_path, save_all=True, append_images=imgs[1:], duration=1500, loop=0)
+        imgs[0].save(gif_path, save_all=True, append_images=imgs[1:], duration=1200, loop=0)
         st.success("✅ ¡VIDEO CREADO! ¡Este SI abre!")
-        st.image(gif_path, caption="Tu video drama - Si no reproduce dale a descargar")
-
+        st.image(gif_path)
         with open(gif_path,"rb") as f:
-            st.download_button("⬇️ DESCARGAR VIDEO (GIF)", f, file_name="drama_rd.gif", mime="image/gif", use_container_width=True)
-
-        # Intentar MP4 tambien
-        try:
-            import imageio.v2 as imageio, numpy as np
-            mp4_path="/tmp/drama.mp4"
-            frames=[]
-            for im in imgs:
-                arr=np.array(im)
-                for _ in range(15): frames.append(arr)
-            imageio.mimsave(mp4_path, frames, fps=10)
-            st.video(mp4_path)
-            with open(mp4_path,"rb") as f:
-                st.download_button("⬇️ DESCARGAR MP4", f, file_name="drama_rd.mp4", mime="video/mp4")
-        except:
-            st.info("MP4 no disponible, pero el GIF de arriba ES tu video. Descárgalo y súbelo a CapCut.")
+            st.download_button("⬇️ DESCARGAR VIDEO", f, file_name="drama_rd.gif", mime="image/gif", use_container_width=True)
         st.balloons()
+    else:
+        st.error("Pollinations está saturado, dale a CREAR VIDEO de nuevo en 30 seg")
