@@ -3,3 +3,4 @@ Pillow
 requests
 imageio==2.31.2
 imageio-ffmpeg
+numpy
