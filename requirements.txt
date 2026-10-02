@@ -1,8 +1,3 @@
 streamlit
-imageio
-imageio-ffmpeg
-opencv-python-headless
-numpy
-edge-tts
 requests
 Pillow
