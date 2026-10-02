@@ -1,6 +1,2 @@
 streamlit
 pillow
-numpy
-imageio
-imageio-ffmpeg
-gtts
