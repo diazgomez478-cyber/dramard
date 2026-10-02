@@ -1,7 +1,13 @@
-# Ya no uses imageio para zoom - usa video real con movimiento
-# En tu Streamlit, cambia la funcion zoom() por esto:
+import streamlit as st
+from PIL import Image
 
-def animar_foto_estilo_pelicula(image_path):
-    # Usa replicate.com o fal.ai API para animar
-    # O usa este truco simple: con HuggingFace - AnimateDiff
-    pass
+st.set_page_config(page_title="DRAMA RD")
+st.title("DRAMA RD - V27")
+st.success("Si ves esto, ya no hay pantalla negra!")
+
+st.write("Guion:")
+guion = st.text_area("Guion", "Luisa demando a Hipolito por 100 millones. El juez fallo a favor de Luisa y los niños. Hipolito furioso gastara todo en lujos y fiestas.")
+
+if st.button("CREAR"):
+    st.write("Funciona!")
+    st.balloons()
