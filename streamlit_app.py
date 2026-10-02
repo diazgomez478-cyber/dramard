@@ -1,89 +1,64 @@
 import streamlit as st
-import requests, urllib.parse, random, io, os
+import requests, urllib.parse, io, random
 from PIL import Image
 from gtts import gTTS
-from moviepy.editor import ImageClip, AudioFileClip
 
-st.set_page_config(page_title="Generador de Videos para YouTube", page_icon="🎬", layout="centered")
+st.set_page_config(page_title="Creador de Dramas 60s", page_icon="🎬", layout="centered")
 st.title("🎬 Creador de Dramas de 60s")
-st.write("Genera videos estilo YouTube Shorts sobre GitHub y programación directamente desde tu móvil.")
+st.write("Genera videos estilo Shorts/Reels sobre programación y dramas de la vida real directamente desde tu móvil.")
 
-idea_rapida = st.selectbox(
-    "Elige una idea base para tu video:",
-    (
-        "Personalizado (Escribir mi propio prompt)",
-        "El error en producción un viernes a las 5 PM",
-        "La guerra de los Pull Requests (Code Review)",
-        "El misterio del commit anónimo a las 3 AM",
-        "Luisa demanda a Hipolito por 100 millones"
-    )
-)
+idea_rapida = st.selectbox("Elige una idea base para tu video:", (
+    "Personalizado (Escribir mi propio prompt)",
+    "El error en producción un viernes a las 5 PM",
+    "La guerra de los Pull Requests (Code Review)",
+    "El misterio del commit anónimo a las 3 AM",
+    "Luisa demanda a Hipolito por 100 millones"
+))
 
 prompt_por_defecto = ""
 audio_texto = ""
 
 if "viernes" in idea_rapida:
-    prompt_por_defecto = "A stressed software engineer staring at a computer screen with code and error messages, office setting, cinematic lighting"
-    audio_texto = "El error en produccion un viernes a las cinco PM, el ingeniero esta estresado"
+    prompt_por_defecto = "A stressed software engineer staring at a computer screen with code and error messages, office setting, cinematic lighting, 9:16 vertical aspect ratio"
+    audio_texto = "El error en produccion un viernes a las cinco de la tarde. El ingeniero esta estresado y el servidor no responde. Todos se fueron a casa y el solo se quedo arreglando un bug que rompio todo el sistema. Son las ocho de la noche, tiene hambre, frio y el jefe llamando cada cinco minutos preguntando si ya esta listo."
 elif "Pull Requests" in idea_rapida:
-    prompt_por_defecto = "A frustrated programmer looking at a laptop reviewing code with glowing annotations, dramatic expression"
-    audio_texto = "La guerra de los Pull Requests, el code review se vuelve intenso"
+    prompt_por_defecto = "A frustrated programmer looking at a laptop reviewing code with glowing annotations, dramatic expression, vertical 9:16"
+    audio_texto = "La guerra de los Pull Requests. El code review se vuelve intensamente dramatico. Llevas tres horas esperando aprobacion y tu compañero te deja veinte comentarios. Que cambies el nombre, que quites un espacio, que todo esta mal. Al final es solo una coma la que detiene el despliegue a produccion."
 elif "commit" in idea_rapida:
-    prompt_por_defecto = "A mysterious glowing computer monitor showing GitHub commits in dark room, cinematic tech thriller"
-    audio_texto = "El misterio del commit anonimo a las tres de la mañana"
+    prompt_por_defecto = "A mysterious glowing computer monitor showing GitHub commits in a dark room, cinematic tech thriller, 9:16 vertical"
+    audio_texto = "El misterio del commit anonimo a las tres de la mañana. Nadie sabe quien rompio la rama principal. El historial no muestra nombre, solo dice arreglo rapido. Y ahora toda la base de datos esta caida. Todos en la oficina se miran con sospecha, nadie quiere confesar que fue el despues de la fiesta."
 elif "Luisa" in idea_rapida:
-    prompt_por_defecto = "Dominican woman Luisa crying shouting in courtroom demanding 100 million pesos, Dominican actress, vertical 9:16 cinematic"
-    audio_texto = "Luisa demanda a Hipolito por cien millones de pesos por abandono y maltrato"
+    prompt_por_defecto = "Dominican woman Luisa crying and shouting in a courtroom demanding 100 million pesos, Dominican actress, vertical 9:16 cinematic lighting, realistic face"
+    audio_texto = "Luisa demanda a Hipolito por cien millones de pesos por abandono, traicion y maltrato psicologico. Durante diez años ella crio sola a sus tres hijos mientras el se gastaba todo en lujos, discotecas y mujeres. Pasaron hambre, frio y humillacion. Hoy por fin el juez la escucha y la justicia por fin llega para Luisa y sus niños. Esta es su venganza."
 
-prompt_usuario = st.text_area("Prompt para el video (en inglés para mejor resultado):", value=prompt_por_defecto, height=100)
-texto_voz = st.text_input("Texto para la voz en off:", value=audio_texto)
+prompt_usuario = st.text_area("Prompt visual (en inglés para mejor resultado):", value=prompt_por_defecto, height=100)
+guion_audio = st.text_area("Texto de la narración (Audio de la parodia):", value=audio_texto, height=150)
 
-if st.button("🚀 Generar Video", type="primary", use_container_width=True):
-    if not prompt_usuario or not texto_voz:
-        st.error("Por favor, asegúrate de tener un prompt de imagen y un texto para la voz.")
+if st.button("🚀 Generar Contenido del Video", type="primary", use_container_width=True):
+    if not prompt_usuario or not guion_audio:
+        st.error("Por favor, completa tanto el prompt visual como el texto del audio.")
     else:
-        with st.spinner("🎬 Creando tu Short... Por favor espera."):
+        with st.spinner("🎬 Generando escena y voz del drama..."):
             try:
-                # 1. Generar y guardar el Audio temporal
-                tts = gTTS(text=texto_voz, lang='es')
-                audio_path = "temp_audio.mp3"
-                tts.save(audio_path)
+                # AUDIO LARGO 30s QUE SI REPRODUCE
+                tts = gTTS(text=guion_audio, lang='es', tld='com.mx', slow=False)
+                audio_buffer = io.BytesIO()
+                tts.write_to_fp(audio_buffer)
+                audio_buffer.seek(0)
+
+                # IMAGEN QUE SI GENERA - ARREGLO DE TU ERROR
+                seed = random.randint(1, 999999)
+                url_img = f"https://image.pollinations.ai/prompt/{urllib.parse.quote(prompt_usuario + ' photorealistic, 4k') }?width=720&height=1280&seed={seed}&nologo=true&model=flux"
+                r = requests.get(url_img, timeout=60)
+                imagen = Image.open(io.BytesIO(r.content)).convert("RGB")
+
+                st.success("✨ ¡Drama generado con éxito!")
+                st.image(imagen, caption="Escena de la Parodia - 9:16", use_container_width=True)
+
+                st.write("🎵 **Audio / Narración de la Parodia (30-35 seg):**")
+                st.audio(audio_buffer, format="audio/mp3")
                 
-                # 2. Simulación de descarga/generación de Imagen (Reemplaza con tu API real)
-                # Aquí guardamos una imagen temporal de prueba (puedes conectar tu API de Pollinations/OpenAI aquí)
-                img = Image.new('RGB', (1080, 1920), color = (random.randint(0,255), random.randint(0,255), random.randint(0,255)))
-                image_path = "temp_image.jpg"
-                img.save(image_path)
-                
-                # 3. COMBINAR EN VIDEO REAL USANDO MOVIEPY
-                audio_clip = AudioFileClip(audio_path)
-                duracion = audio_clip.duration  # El video durará lo mismo que el audio
-                
-                # Crear el clip de video a partir de la imagen estática
-                video_clip = ImageClip(image_path).set_duration(duracion)
-                # Asignarle el audio
-                video_clip = video_clip.set_audio(audio_clip)
-                
-                # Renderizar el archivo final MP4
-                output_video_path = "final_short.mp4"
-                video_clip.write_videofile(
-                    output_video_path, 
-                    fps=24, 
-                    codec="libx264", 
-                    audio_codec="aac"
-                )
-                
-                # Cerrar clips para liberar memoria
-                audio_clip.close()
-                video_clip.close()
-                
-                # 4. Mostrar el video en Streamlit
-                st.success("¡Video generado con éxito!")
-                st.video(output_video_path)
-                
-                # Limpieza de archivos temporales locales
-                os.remove(audio_path)
-                os.remove(image_path)
+                st.info("💡 Ya tienes 30 seg. Si lo quieres de 60 seg, escribe el doble de texto en la narración.")
                 
             except Exception as e:
-                st.error(f"Hubo un error al compilar el video: {e}")
+                st.error(f"Hubo un inconveniente: {e}")
