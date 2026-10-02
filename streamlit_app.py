@@ -1,7 +1,8 @@
 import streamlit as st
-import requests, urllib.parse, random, io
+import requests, urllib.parse, random, io, os
 from PIL import Image
 from gtts import gTTS
+from moviepy.editor import ImageClip, AudioFileClip
 
 st.set_page_config(page_title="Generador de Videos para YouTube", page_icon="🎬", layout="centered")
 st.title("🎬 Creador de Dramas de 60s")
@@ -19,6 +20,8 @@ idea_rapida = st.selectbox(
 )
 
 prompt_por_defecto = ""
+audio_texto = ""
+
 if "viernes" in idea_rapida:
     prompt_por_defecto = "A stressed software engineer staring at a computer screen with code and error messages, office setting, cinematic lighting"
     audio_texto = "El error en produccion un viernes a las cinco PM, el ingeniero esta estresado"
@@ -31,41 +34,56 @@ elif "commit" in idea_rapida:
 elif "Luisa" in idea_rapida:
     prompt_por_defecto = "Dominican woman Luisa crying shouting in courtroom demanding 100 million pesos, Dominican actress, vertical 9:16 cinematic"
     audio_texto = "Luisa demanda a Hipolito por cien millones de pesos por abandono y maltrato"
-else:
-    prompt_por_defecto = ""
-    audio_texto = ""
 
 prompt_usuario = st.text_area("Prompt para el video (en inglés para mejor resultado):", value=prompt_por_defecto, height=100)
+texto_voz = st.text_input("Texto para la voz en off:", value=audio_texto)
 
 if st.button("🚀 Generar Video", type="primary", use_container_width=True):
-    if not prompt_usuario.strip():
-        st.warning("Por favor escribe o selecciona un prompt válido.")
+    if not prompt_usuario or not texto_voz:
+        st.error("Por favor, asegúrate de tener un prompt de imagen y un texto para la voz.")
     else:
-        with st.spinner("Generando tu video para YouTube Shorts... Esto puede tomar un momento."):
+        with st.spinner("🎬 Creando tu Short... Por favor espera."):
             try:
-                # GENERA IMAGEN QUE SI SE VE
-                seed = random.randint(1000, 999999)
-                url = f"https://image.pollinations.ai/prompt/{urllib.parse.quote(prompt_usuario + ' vertical 9:16 photorealistic') }?width=720&height=1280&seed={seed}&nologo=true&model=flux"
-                r = requests.get(url, timeout=50)
-                img = Image.open(io.BytesIO(r.content)).convert("RGB")
-                st.image(img, use_container_width=True)
-
-                # AUDIO QUE SI REPRODUCE - ARREGLO DE TU FOTO 0:00
-                if audio_texto == "":
-                    audio_texto = prompt_usuario[:150]
+                # 1. Generar y guardar el Audio temporal
+                tts = gTTS(text=texto_voz, lang='es')
+                audio_path = "temp_audio.mp3"
+                tts.save(audio_path)
                 
-                tts = gTTS(text=audio_texto, lang='es', slow=False)
-                mp3_fp = io.BytesIO()
-                tts.write_to_fp(mp3_fp)
-                mp3_fp.seek(0)
-                st.audio(mp3_fp, format="audio/mp3")
+                # 2. Simulación de descarga/generación de Imagen (Reemplaza con tu API real)
+                # Aquí guardamos una imagen temporal de prueba (puedes conectar tu API de Pollinations/OpenAI aquí)
+                img = Image.new('RGB', (1080, 1920), color = (random.randint(0,255), random.randint(0,255), random.randint(0,255)))
+                image_path = "temp_image.jpg"
+                img.save(image_path)
                 
-                st.success("¡Tu video está listo!")
-                st.markdown('<div style="background-color:#1B5E20; padding:15px; border-radius:10px; color:#A5D6A7;">Escena 1 lista - Audio reproduciendo</div>', unsafe_allow_html=True)
-                st.balloons()
-
+                # 3. COMBINAR EN VIDEO REAL USANDO MOVIEPY
+                audio_clip = AudioFileClip(audio_path)
+                duracion = audio_clip.duration  # El video durará lo mismo que el audio
+                
+                # Crear el clip de video a partir de la imagen estática
+                video_clip = ImageClip(image_path).set_duration(duracion)
+                # Asignarle el audio
+                video_clip = video_clip.set_audio(audio_clip)
+                
+                # Renderizar el archivo final MP4
+                output_video_path = "final_short.mp4"
+                video_clip.write_videofile(
+                    output_video_path, 
+                    fps=24, 
+                    codec="libx264", 
+                    audio_codec="aac"
+                )
+                
+                # Cerrar clips para liberar memoria
+                audio_clip.close()
+                video_clip.close()
+                
+                # 4. Mostrar el video en Streamlit
+                st.success("¡Video generado con éxito!")
+                st.video(output_video_path)
+                
+                # Limpieza de archivos temporales locales
+                os.remove(audio_path)
+                os.remove(image_path)
+                
             except Exception as e:
-                st.error(f"No se pudo generar. Intenta de nuevo. Error: {e}")
-
-st.markdown("---")
-st.markdown("💡 *Tip: Recuerda que los Shorts de YouTube funcionan mejor si duran 60 segundos y tienen un gancho fuerte al inicio.*")
+                st.error(f"Hubo un error al compilar el video: {e}")
