@@ -4,5 +4,4 @@ pillow
 numpy
 imageio
 imageio-ffmpeg
-moviepy
 gtts
