@@ -67,7 +67,7 @@ if st.button("🚀 Generar Video de Actuación", type="primary", use_container_w
             # Endpoint de creación de tareas en la API de Kling
             task_response = requests.post("https://klingai.com", json=payload_task, headers=headers, timeout=15)
             
-            if task_response.status_code in:
+            if task_response.status_code == 200 or task_response.status_code == 201:
                 task_data = task_response.json()
                 task_id = task_data.get("data", {}).get("task_id")
                 
@@ -117,7 +117,7 @@ if st.button("🚀 Generar Video de Actuación", type="primary", use_container_w
                 else:
                     estado_placeholder.error("El tiempo de espera expiró o la API no entregó el video. Intenta nuevamente.")
             else:
-                st.error(f"Error de conexión con la API de Kling: {task_response.status_code}")
+                st.error(f"Error de conexión con la API de Kling: Status {task_response.status_code}")
                 
         except Exception as e:
             st.error(f"Ocurrió un error inesperado al procesar: {e}")
