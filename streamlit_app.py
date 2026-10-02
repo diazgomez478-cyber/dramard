@@ -13,7 +13,8 @@ st.title("🎥 Generador de Videos Geopolíticos (55s)")
 st.write("Genera escenas y fragmentos de actuación real sobre la era política y conflictos globales mediante Kling AI.")
 
 # Coloca aquí tu clave secreta de Kling AI de forma segura dentro de las comillas
-KLING_API_KEY = "TU_KLING_API_KEY_AQUI"
+KLING_API_KEY = st.secrets["KLING_API_KEY"]
+
 
 # Menú interactivo basado en las escenas de tu guion
 escena_guion = st.selectbox(
