@@ -1,37 +1,55 @@
 import streamlit as st
 
-st.set_page_config(page_title="Victor Karaoke - Dramas", page_icon="🎬")
+st.set_page_config(page_title="Generador de Videos para YouTube", page_icon="🎬", layout="centered")
 
-st.title("🎬 Victor Karaoke | Dramas de 60s")
-st.subheader("Guiones para YouTube Shorts y TikTok")
+st.title("🎬 Creador de Dramas de 60s")
+st.write("Genera videos estilo YouTube Shorts sobre GitHub y programación directamente desde tu móvil.")
 
-# Menú de selección para ver los guiones en el móvil
-opcion = st.selectbox(
-    "Elige un guion:",
-    ("El Deploy del Pánico", "La venganza del Code Review", "El Commit Fantasma")
+# Selección rápida de guiones o ideas
+idea_rapida = st.selectbox(
+    "Elige una idea base para tu video:",
+    (
+        "Personalizado (Escribir mi propio prompt)",
+        "El error en producción un viernes a las 5 PM",
+        "La guerra de los Pull Requests (Code Review)",
+        "El misterio del commit anónimo a las 3 AM"
+    )
 )
 
-if opcion == "El Deploy del Pánico":
-    st.markdown("""
-    ### ⏱️ Duración: 60 segundos
-    * **00:00 - 00:03 (GANCHO):** Primer plano de un programador sudando frente a una alerta roja en GitHub.
-    * **00:03 - 00:20 (CONFLICTO):** Teclea rápido `git push origin main --force` por error.
-    * **00:20 - 00:45 (EL CAOS):** El servidor principal de la empresa se cae.
-    * **00:45 - 00:60 (DESENLACE):** Usa `git reflog`, salva el día y sale corriendo de la oficina.
-    """)
+# Definir el prompt según la selección
+prompt_por_defecto = ""
+if "viernes" in idea_rapida:
+    prompt_por_defecto = "A stressed software engineer staring at a computer screen with code and error messages, office setting, cinematic lighting, dramatic tension"
+elif "Pull Requests" in idea_rapida:
+    prompt_por_defecto = "A frustrated programmer looking at a laptop screen reviewing code with glowing annotations, office background, dramatic expression"
+elif "commit" in idea_rapida:
+    prompt_por_defecto = "A mysterious glowing computer monitor showing GitHub code commits in a dark room, cinematic tech thriller atmosphere"
 
-elif opcion == "La venganza del Code Review":
-    st.markdown("""
-    ### ⏱️ Duración: 60 segundos
-    * **00:00 - 00:03 (GANCHO):** Notificación de GitHub con 47 comentarios de revisión.
-    * **00:03 - 00:45 (CONFLICTO):** Discusión mental sobre cambiar nombres de variables y refactorizar.
-    * **00:45 - 00:60 (DESENLACE):** PR aprobado de mala gana y código funcionando de milagro.
-    """)
+# Campo de texto para el prompt (optimizado para pantalla táctil)
+prompt_usuario = st.text_area(
+    "Prompt para el video (en inglés para mejor resultado):", 
+    value=prompt_por_defecto, 
+    height=100
+)
 
-else:
-    st.markdown("""
-    ### ⏱️ Duración: 60 segundos
-    * **00:00 - 00:03 (GANCHO):** Commit anónimo a las 3:00 AM con mensaje "Arreglé el universo".
-    * **00:03 - 00:45 (CONFLICTO):** El equipo investiga quién escribió ese código brillante.
-    * **00:45 - 00:60 (DESENLACE):** Era el becario trabajando sonámbulo sobre el teclado.
-    """)
+# Botón de generación
+if st.button("🚀 Generar Video", type="primary", use_container_width=True):
+    if not prompt_usuario.strip():
+        st.warning("Por favor escribe o selecciona un prompt válido.")
+    else:
+        with st.spinner("Generando tu video para YouTube Shorts... Esto puede tomar un momento."):
+            # Aquí se conecta con el motor de generación de video
+            # (Nota: Asegúrate de tener configurado tu backend o entorno de llamadas a la herramienta de video)
+            try:
+                # Simulación de llamada exitosa / Integración de generación
+                st.success("¡Tu video está listo!")
+                st.balloons()
+                
+                # Espacio para mostrar el video generado
+                # st.video("url_del_video_generado")
+                
+            except Exception as e:
+                st.error(f"No se pudo generar el video. Intenta de nuevo. Error: {e}")
+
+st.markdown("---")
+st.markdown("💡 *Tip: Recuerda que los Shorts de YouTube funcionan mejor si duran 60 segundos y tienen un gancho fuerte al inicio.*")
