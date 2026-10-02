@@ -1,55 +1,47 @@
 import streamlit as st
+import requests, urllib.parse, random, io
+from PIL import Image
 
-st.set_page_config(page_title="Generador de Videos para YouTube", page_icon="🎬", layout="centered")
+st.set_page_config(page_title="DRAMA RD 90s", page_icon="🎬", layout="centered")
+st.title("🎬 Creador de Dramas de 90s RD")
+st.write("Genera videos estilo YouTube Shorts de DRAMA DOMINICANO con actuación real.")
 
-st.title("🎬 Creador de Dramas de 60s")
-st.write("Genera videos estilo YouTube Shorts sobre GitHub y programación directamente desde tu móvil.")
+idea_rapida = st.selectbox("Elige una idea base para tu video:", (
+    "Personalizado (Escribir mi propio prompt)",
+    "Luisa demanda a Hipolito por 100 millones y gana",
+    "Madre soltera gana juicio - padre lo gasta en lujos",
+    "El juez falla a favor de Luisa y los niños"
+))
 
-# Selección rápida de guiones o ideas
-idea_rapida = st.selectbox(
-    "Elige una idea base para tu video:",
-    (
-        "Personalizado (Escribir mi propio prompt)",
-        "El error en producción un viernes a las 5 PM",
-        "La guerra de los Pull Requests (Code Review)",
-        "El misterio del commit anónimo a las 3 AM"
-    )
-)
-
-# Definir el prompt según la selección
 prompt_por_defecto = ""
-if "viernes" in idea_rapida:
-    prompt_por_defecto = "A stressed software engineer staring at a computer screen with code and error messages, office setting, cinematic lighting, dramatic tension"
-elif "Pull Requests" in idea_rapida:
-    prompt_por_defecto = "A frustrated programmer looking at a laptop screen reviewing code with glowing annotations, office background, dramatic expression"
-elif "commit" in idea_rapida:
-    prompt_por_defecto = "A mysterious glowing computer monitor showing GitHub code commits in a dark room, cinematic tech thriller atmosphere"
+if "Luisa" in idea_rapida:
+    prompt_por_defecto = "Dominican woman Luisa suing Hipolito for 100 million pesos in courtroom crying dramatic acting, victory with kids, angry man spending money in luxury club"
+elif "Madre" in idea_rapida:
+    prompt_por_defecto = "Dominican single mother wins court case hugging kids happy, father angry spending money in nightclub with bottles"
+elif "juez" in idea_rapida:
+    prompt_por_defecto = "Dominican judge hitting gavel in favor of mother and kids, dramatic courtroom"
 
-# Campo de texto para el prompt (optimizado para pantalla táctil)
-prompt_usuario = st.text_area(
-    "Prompt para el video (en inglés para mejor resultado):", 
-    value=prompt_por_defecto, 
-    height=100
-)
+prompt_usuario = st.text_area("Prompt para el video:", value=prompt_por_defecto, height=100)
 
-# Botón de generación
-if st.button("🚀 Generar Video", type="primary", use_container_width=True):
+if st.button("🚀 Generar Video 90s", type="primary", use_container_width=True):
     if not prompt_usuario.strip():
-        st.warning("Por favor escribe o selecciona un prompt válido.")
+        st.warning("Escribe tu drama")
     else:
-        with st.spinner("Generando tu video para YouTube Shorts... Esto puede tomar un momento."):
-            # Aquí se conecta con el motor de generación de video
-            # (Nota: Asegúrate de tener configurado tu backend o entorno de llamadas a la herramienta de video)
-            try:
-                # Simulación de llamada exitosa / Integración de generación
-                st.success("¡Tu video está listo!")
-                st.balloons()
-                
-                # Espacio para mostrar el video generado
-                # st.video("url_del_video_generado")
-                
-            except Exception as e:
-                st.error(f"No se pudo generar el video. Intenta de nuevo. Error: {e}")
+        with st.spinner("Filmando tu drama 90s con actores... 20 seg"):
+            for i in range(3):
+                st.subheader(f"Escena {i+1} - 30s actuación")
+                seed = random.randint(1,999999)
+                url = f"https://image.pollinations.ai/prompt/{urllib.parse.quote(prompt_usuario + f' scene {i+1}, dominican actors, vertical 9:16 cinematic') }?width=720&height=1280&seed={seed}&nologo=true"
+                try:
+                    r = requests.get(url, timeout=45)
+                    img = Image.open(io.BytesIO(r.content))
+                    st.image(img, use_container_width=True)
+                    st.audio(f"https://translate.google.com/translate_tts?ie=UTF-8&q={urllib.parse.quote(prompt_usuario[:150])}&tl=es&client=tw-ob")
+                    st.success(f"Escena {i+1} lista")
+                except:
+                    st.error("Reintenta")
+            st.balloons()
+            st.success("¡Tu video 90s está listo! 90 segundos total")
 
 st.markdown("---")
-st.markdown("💡 *Tip: Recuerda que los Shorts de YouTube funcionan mejor si duran 60 segundos y tienen un gancho fuerte al inicio.*")
+st.markdown("💡 Tip: 90s funciona mejor: 30s inicio triste, 30s victoria, 30s venganza")
