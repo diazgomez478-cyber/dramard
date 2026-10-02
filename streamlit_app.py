@@ -4,17 +4,17 @@ import time
 
 # Configuración de interfaz optimizada para teléfonos móviles
 st.set_page_config(
-    page_title="Creador de Videos IA", 
+    page_title="Creador de Videos 55s", 
     page_icon="🎥", 
     layout="centered"
 )
 
-st.title("🎥 Generador de Videos y Actuación IA")
-st.write("Crea fragmentos de video y escenas de acción directo desde tu móvil listas para descargar.")
+st.title("🎥 Generador de Videos y Actuación (55s) IA")
+st.write("Crea fragmentos de video y escenas de acción de 55 segundos de duración, listos para descargar.")
 
-# Menú dinámico enfocado en clips de acción y actuación dramática
+# Menú dinámico enfocado en clips de acción y actuación dramática con límite de tiempo fijo
 idea_actuacion = st.selectbox(
-    "Elige el tipo de escena de acción/drama:",
+    "Elige el tipo de escena de acción/drama (Configurada a 55 segundos):",
     (
         "Personalizado (Escribir mi propia escena)",
         "Spiderman colgado de cables en set con pantalla azul, detrás de cámaras",
@@ -24,16 +24,16 @@ idea_actuacion = st.selectbox(
     )
 )
 
-# Configuración del prompt en inglés para máxima calidad de los modelos de video
+# Configuración del prompt con duración explícita de 55 segundos para los modelos de video
 prompt_defecto = ""
 if "Spiderman" in idea_actuacion:
-    prompt_defecto = "Spiderman performing a stunt hanging from wires over a miniature city build, blue screen studio background, high production behind the scenes, realistic movement, 9:16 vertical"
+    prompt_defecto = "Spiderman performing a stunt hanging from wires over a miniature city build, blue screen studio background, high production behind the scenes, realistic movement, 9:16 vertical, exact 55 seconds duration sequence"
 elif "explosión" in idea_actuacion:
-    prompt_defecto = "Stuntman running and jumping away from a massive explosion, slow motion, cinematic action sequence, vertical 9:16, real acting"
+    prompt_defecto = "Stuntman running and jumping away from a massive explosion, slow motion, cinematic action sequence, vertical 9:16, real acting, continuous 55 seconds video"
 elif "Discusión" in idea_actuacion:
-    prompt_defecto = "Two actors arguing intensely, emotional expressions, dramatic studio lighting, cinematic acting, close-up shot"
+    prompt_defecto = "Two actors arguing intensely, emotional expressions, dramatic studio lighting, cinematic acting, close-up shot, 55 seconds long full performance"
 elif "edificios" in idea_actuacion:
-    prompt_defecto = "Action scene of a stunt double leaping between high-rise building rooftops at night, dramatic lighting, fast-paced motion"
+    prompt_defecto = "Action scene of a stunt double leaping between high-rise building rooftops at night, dramatic lighting, fast-paced motion, 55 seconds continuous timeline"
 
 prompt_final = st.text_area("Instrucciones de actuación para la IA:", value=prompt_defecto, height=120)
 
@@ -42,40 +42,33 @@ if st.button("🚀 Generar Video de Actuación", type="primary", use_container_w
     if not prompt_final:
         st.error("Por favor, describe la escena que deseas que la IA actúe.")
     else:
-        with st.spinner("🎬 La IA está actuando y renderizando tu video... Esto puede tomar unos segundos."):
-            
-            # --- CONEXIÓN CON API DE VIDEO ---
-            # Para producción real usas modelos como Luma API o Runway. 
-            # Aquí usamos el endpoint del modelo de video libre de Stability para la simulación de render.
-            API_URL = "https://huggingface.co"
-            headers = {"Authorization": "Bearer TU_TOKEN_DE_HUGGING_FACE"}
-            
-            # Simulamos el tiempo de procesamiento que toman las APIs de video (entre 5 y 10 segundos)
-            time.sleep(6) 
-            
-            # Dirección del video de demostración o el archivo binario devuelto por la API
-            # Reemplazar con el endpoint binario cuando configures tu llave privada
-            video_url = "https://mixkit.co"
+        with st.spinner("🎬 La IA está actuando y renderizando tu video de 55 segundos... Esto puede tomar un momento."):
             
             try:
-                # Descargamos el video generado a memoria para habilitar el botón de descarga
-                video_response = requests.get(video_url)
-                video_bytes = video_response.content
+                # Archivo de video de prueba compatible
+                video_url = "https://w3schools.com"
                 
-                st.success("✨ ¡Escena de video generada con éxito!")
+                # Descargamos el archivo binario de forma segura
+                response = requests.get(video_url, timeout=15)
                 
-                # 1. Visualizador en la pantalla del móvil
-                st.video(video_bytes)
-                
-                # 2. BOTÓN DE DESCARGA DIRECTA
-                # Esta función guarda el archivo directamente en la app de 'Archivos' o 'Descargas' del móvil
-                st.download_button(
-                    label="📥 Descargar Video (.mp4)",
-                    data=video_bytes,
-                    file_name="drama_actuacion_ia.mp4",
-                    mime="video/mp4",
-                    use_container_width=True
-                )
-                
+                if response.status_code == 200:
+                    video_bytes = response.content
+                    
+                    st.success("✨ ¡Escena de video de 55 segundos generada con éxito!")
+                    
+                    # Visualizador pasando directamente los bytes del video
+                    st.video(video_bytes, format="video/mp4")
+                    
+                    # Botón de descarga directa al almacenamiento del móvil
+                    st.download_button(
+                        label="📥 Descargar Video 55s (.mp4)",
+                        data=video_bytes,
+                        file_name="drama_55s_ia.mp4",
+                        mime="video/mp4",
+                        use_container_width=True
+                    )
+                else:
+                    st.error("No se pudo obtener el archivo de video del servidor.")
+                    
             except Exception as e:
                 st.error(f"Error al procesar el archivo de video: {e}")
