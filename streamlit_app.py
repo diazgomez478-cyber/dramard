@@ -1,95 +1,108 @@
-import streamlit as st, urllib.parse, random, requests, io, time, os
-from PIL import Image
+import streamlit as st, requests, io, random, urllib.parse, os, textwrap
+from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 from gtts import gTTS
-from moviepy.editor import ImageSequenceClip, AudioFileClip
+from moviepy.editor import ImageSequenceClip, AudioFileClip, CompositeAudioClip
 
-st.set_page_config(page_title="DRAMA RD 1080p", page_icon="🎬")
-st.title("🎬 DRAMA RD - 1080p + AUDIO")
-st.caption("🇩🇴 Victor el natural - Full HD")
+st.set_page_config(page_title="DRAMA RD CINE", page_icon="🎬")
+st.title("🎬 DRAMA RD - CINE REAL 1080p")
+st.caption("🇩🇴 Como el video que mandaste - con subtitulos y audio")
 
-tema = st.text_area("Tema / Guion para audio", "Trump el terror de la casa blanca. Victor el natural te cuenta la verdad sin censura.")
-prota = st.text_input("Protagonista", "Victor el natural")
+# Historia como la del video que mandaste
+guion = st.text_area("Guion (pon tu historia)", 
+"""Son veinticinco años de matrimonio. A mi defendida le toca la mitad.
+Luisa buscó un abogado y lo demandó por no compartir su dinero.
+Hipolito teniendo cien millones en su cuenta, por qué no ayuda a su familia?
+Porque ese dinero es solo mio. Yo me lo gané con mi sudor.
+Este tribunal falla a favor de la mujer y los niños. 50 millones para Luisa.
+Hipolito furioso decidió GASTAR TODO su dinero en lujos, mujeres y fiestas.
+Para que no le quedara nada a su familia.""")
 
-def get_img(prompt):
-    for _ in range(5):
+def get_cinematic(prompt, w=1920, h=1080):
+    for _ in range(6):
         try:
-            # 1080p = 1920x1080
-            url = f"https://image.pollinations.ai/prompt/{urllib.parse.quote(prompt)}?width=1920&height=1080&seed={random.randint(1,999999)}&nologo=true&enhance=true"
+            seed = random.randint(1,999999)
+            # Prompt mejorado para que no salga tieso
+            full = f"{prompt}, cinematic movie still, dramatic lighting, 8k, photorealistic, film grain, courtroom drama"
+            url = f"https://image.pollinations.ai/prompt/{urllib.parse.quote(full)}?width={w}&height={h}&seed={seed}&nologo=true&enhance=true"
             r = requests.get(url, timeout=90, headers={"User-Agent":"Mozilla/5.0"})
             if len(r.content) > 15000:
-                img = Image.open(io.BytesIO(r.content)).convert("RGB").resize((1920,1080))
-                return img
-        except:
-            time.sleep(2)
+                return Image.open(io.BytesIO(r.content)).convert("RGB").resize((1920,1080))
+        except: pass
     return None
 
-def zoom_frames(img, num_frames=80):
+def add_subtitle(img, text):
+    # Pone subtitulos blancos abajo como en tu video
+    draw = ImageDraw.Draw(img)
+    W, H = img.size
+    # fondo negro semitransparente
+    draw.rectangle([0, H-180, W, H], fill=(0,0,0,180))
+    # texto
+    wrapped = textwrap.wrap(text, width=60)
+    y = H-160
+    for line in wrapped[:3]:
+        draw.text((W//2, y), line, fill="white", anchor="mm", 
+                  stroke_width=2, stroke_fill="black", font=ImageFont.load_default())
+        y+=35
+    return img
+
+def ken_burns(img, frames=70):
     w,h = img.size
-    frames=[]
-    for i in range(num_frames):
-        zoom = 1 + (i/num_frames)*0.25
+    out=[]
+    for i in range(frames):
+        zoom = 1.0 + (i/frames)*0.3
         nw, nh = int(w*zoom), int(h*zoom)
         resized = img.resize((nw, nh), Image.LANCZOS)
-        left = (nw - w)//2
-        top = (nh - h)//2
-        cropped = resized.crop((left, top, left+w, top+h))
-        frames.append(np.array(cropped))
-    return frames
+        # movimiento suave
+        left = int((nw-w) * (i/frames) * 0.5)
+        top = int((nh-h) * 0.3)
+        crop = resized.crop((left, top, left+w, top+h))
+        out.append(np.array(crop))
+    return out
 
-if st.button("🔥 CREAR VIDEO 1080p CON AUDIO", use_container_width=True):
+if st.button("🔥 CREAR VIDEO CINE CON AUDIO", use_container_width=True):
+    escenas = [
+        ("Juez en tribunal gritando, dominican judge angry, black robe, courtroom", "Son veinticinco años de matrimonio. A mi defendida le toca la mitad."),
+        ("Mujer dominicana llorando con dos niños abrazados, triste, lagrimas, cinematic", "LUISA buscó un abogado y lo demandó por no compartir su dinero. Prefiere el divorcio."),
+        ("Juez viejo serio en estrado, wooden courtroom, dramatic", "Hipolito, teniendo usted 100 millones en su cuenta, por qué no ayuda a su propia familia?"),
+        ("Hombre rico dominicano traje marron gritando en corte, furioso", "Porque ese dinero es solo mio señoria, yo me lo gane con mi sudor, ella no trabajo nada."),
+        ("Mujer llorando abrazando niños, final feliz, cinematic", "Este tribunal falla a favor de la mujer y los niños. Se le otorga la mitad, 50 millones para Luisa."),
+        ("Hombre con dinero, fiesta, mujeres, champan, carro deportivo, noche", "HIPOLITO furioso, decidió GASTAR TODO su dinero en lujos, mujeres y fiestas...")
+    ]
+
     imgs=[]
-    bar = st.progress(0)
-    for i in range(3):
-        st.write(f"Generando escena {i+1}/3 en 1080p...")
-        img = get_img(f"dominican man {prota}, {tema}, scene {i+1}, cinematic 8k ultra detailed, dramatic lighting")
+    for i,(prompt, texto) in enumerate(escenas):
+        st.write(f"Escena {i+1}/6: {texto[:40]}...")
+        img = get_cinematic(prompt)
         if img:
-            imgs.append(img)
-            st.image(img, caption=f"Escena {i+1} - 1920x1080", use_container_width=True)
-        bar.progress((i+1)/3)
+            img = add_subtitle(img.copy(), texto)
+            imgs.append((img, texto))
+            st.image(img, use_container_width=True)
 
-    if not imgs:
-        st.error("Servidor ocupado, espera 30 seg")
+    if len(imgs) < 3:
+        st.error("Pollinations lento, dale de nuevo en 1 min")
     else:
-        while len(imgs)<3: imgs.append(imgs[-1])
-
-        # 1. Crear frames con zoom para 1080p
-        st.write("Creando movimiento...")
+        # Crear video con movimiento
         all_frames=[]
-        for im in imgs:
-            all_frames.extend(zoom_frames(im, 60))
+        for img, txt in imgs:
+            all_frames.extend(ken_burns(img, 60))
 
-        # 2. Crear audio con tu guion
-        st.write("Generando audio...")
-        tts_path = "/tmp/audio.mp3"
-        try:
-            tts = gTTS(text=f"{prota}. {tema}", lang='es', tld='com.mx') # voz latina
-            tts.save(tts_path)
-        except Exception as e:
-            st.warning(f"Audio fallo, video sin audio: {e}")
-            tts_path = None
+        # Audio
+        audio_path="/tmp/full_audio.mp3"
+        full_text = " ".join([t for _, t in imgs])
+        tts = gTTS(text=full_text[:800], lang='es', tld='com.mx', slow=False)
+        tts.save(audio_path)
 
-        # 3. Crear video 1080p
-        video_path = "/tmp/drama_1080.mp4"
+        video_path="/tmp/cine_final.mp4"
         clip = ImageSequenceClip(all_frames, fps=24)
-        
-        if tts_path and os.path.exists(tts_path):
-            audio = AudioFileClip(tts_path)
-            # Si el audio es mas largo que el video, alargar video
-            if audio.duration > clip.duration:
-                clip = clip.loop(duration=audio.duration)
-            else:
-                audio = audio.subclip(0, clip.duration)
-            final_clip = clip.set_audio(audio)
-            final_clip.write_videofile(video_path, fps=24, codec='libx264', audio_codec='aac', logger=None)
-        else:
-            clip.write_videofile(video_path, fps=24, codec='libx264', logger=None)
+        audio = AudioFileClip(audio_path)
+        if audio.duration > clip.duration:
+            clip = clip.loop(duration=audio.duration)
+        final = clip.set_audio(audio)
+        final.write_videofile(video_path, fps=24, codec='libx264', audio_codec='aac', logger=None)
 
-        st.success("✅ ¡VIDEO 1080p CON AUDIO LISTO!")
+        st.success("✅ ¡VIDEO CINE LISTO! Como el que mandaste")
         st.video(video_path)
-
-        with open(video_path, "rb") as f:
-            st.download_button("⬇️ DESCARGAR VIDEO 1080p HD", f, file_name="drama_rd_1080p.mp4", mime="video/mp4", use_container_width=True)
-        
+        with open(video_path,"rb") as f:
+            st.download_button("⬇️ DESCARGAR VIDEO 1080p CON AUDIO", f, "drama_cine_1080p.mp4", "video/mp4", use_container_width=True)
         st.balloons()
-        st.info("💡 Tip: Súbelo a TikTok, ya está en 1920x1080 Full HD con audio")
