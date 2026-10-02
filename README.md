@@ -1,57 +1,38 @@
-import streamlit as st
-import urllib.parse, random, requests, io, os
-from PIL import Image
-import numpy as np
+La Era de Trump 
 
-st.set_page_config(page_title="DRAMA RD VIDEO", page_icon="🎬")
-st.title("🎬 DRAMA RD - VIDEO REAL")
-st.caption("🇩🇴 Tu PixVerse Dominicano - ¡Ahora SI genera VIDEO MP4!")
+Trump un lider político que al comienzo pensaban que no llegaba ni a la primera  vuelta a dejado al mundo en pata abajo
 
-tema = st.text_input("Tema del drama", "Trump el terror de la casa blanca")
-prota = st.text_input("Protagonista", "Victor el natural")
-duracion = st.selectbox("Duración", ["1 MINUTO - 3 escenas", "3 MINUTOS - 5 escenas", "5 MINUTOS - 7 escenas"])
+Control, migración, Aranceles, Israel, iran , estrecho de ormuz 
 
-if st.button("🔥 CREAR VIDEO REAL"):
-    num = 3 if "1" in duracion else 5 if "3" in duracion else 7
+En los primeros 2 años que esta por culminar por el congresos y el senado 
+Trump se a llegado de orgullo y en si mismo creerce el mas superior del mundo
 
-    st.success(f"🎥 Creando VIDEO de {duracion}...")
-    barra = st.progress(0)
+Trump perderá la camara de representante y la camara del senado
+Sonde tendra que luchar para poder mantenerse en el puesto como presidentes 
 
-    frames = []
-    # Creamos las imagenes
-    for i in range(1, num+1):
-        st.write(f"📸 Generando escena {i}/{num}...")
-        prompt = f"dominican man {prota}, dramatic scene {tema}, cinematic movie, ultra realistic, 4k"
-        url = f"https://image.pollinations.ai/prompt/{urllib.parse.quote(prompt)}?width=720&height=1280&seed={random.randint(1,999999)}&nologo=true"
+Trump sería capaz de   tirar una ley para que la elecciones sean cancelada..si se ve acorralado 
+Será capaz se aumentan la atención entre Israel y Irán 
+A Trump no le interesa Irán 
+Israel no se puede confiar en Trump 
+Trump lo único que quiere es quedar bien con quien el vea la facilidad 
 
-        try:
-            r = requests.get(url, timeout=15)
-            img = Image.open(io.BytesIO(r.content)).convert("RGB").resize((720,1280))
-            frames.append(np.array(img))
-            st.image(img, caption=f"Escena {i}", use_container_width=True)
-        except:
-            st.error(f"Reintentando escena {i}...")
+Los 2 últimos años de Trump sera 2 años de dolor y sufrimiento no solo para estados unidos si no para el mundo entero. Un desafío de autoridad y de quien  tiene el control 
 
-        barra.progress(i/num)
+Trump es la chipa de encendíar el fuego
+ Trump a tenido la oportunidad de ser un buen lider pero su orgullo y ego lo a segado se cree en sí mismo que esta haciendo todo bien
 
-    # Crear video MP4 real
-    if frames:
-        try:
-            import imageio.v2 as imageio
-            video_path = "/tmp/dramard_video.mp4"
-            # Cada foto dura 2 segundos = video de 6, 10 o 14 seg (para CapCut lo alargas)
-            imageio.mimsave(video_path, frames, fps=0.5, macro_block_size=1)
+Pero el mundo cada dia mas se llena de irá contra Trump 
+Y contra Israel 
 
-            st.balloons()
-            st.success("¡VIDEO CREADO!")
-            st.video(video_path)
+Israel un pais que a dado  por la paz y luchas pero los oponente prefieren guerra y muerte de millones de inocentes 
 
-            with open(video_path, "rb") as f:
-                st.download_button("⬇️ DESCARGAR VIDEO MP4", f, file_name=f"DRAMA_{prota}_{duracion}.mp4", mime="video/mp4")
+Los malo hacen creer que Israel es violento
+Que Israel es enemigo del mundo 
 
-            st.info("¡Ahora mete este video en CapCut, ponle voz y música de drama y súbelo!")
-        except Exception as e:
-            st.error(f"Instalando creador de video... dale de nuevo a CREAR VIDEO")
-            os.system("pip install imageio[ffmpeg] numpy pillow requests")
-    else:
-        st.error("No se pudieron crear escenas, dale otra vez")
+A los contrarios Israel es amigo del mundo  claro tiene su defecto 
+Pero el mundo entero meten la pata
+
+Trump un amigo de Israel, un buen aliados 
+Pero Israel no te confie en Trump 
+
+Trump con Ucrania Rusia dijo que lo acabaría desde que comenzará de ser presidente pero no hacido los contrarios
