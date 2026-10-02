@@ -1,3 +1,6 @@
-streamlit
-Pillow
-requests
+# Dependencias del proyecto - Viernes 5:00 PM
+panic==4.0.4
+coffee>=10.2.1
+git-blame-someone-else==1.0.0
+stack-overflow-copier==99.9
+im-leaving-early==0.1.0
