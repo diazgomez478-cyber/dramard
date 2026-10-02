@@ -4,7 +4,7 @@ import time
 
 # Configuración de interfaz optimizada para teléfonos móviles
 st.set_page_config(
-    page_title="Creador de Videos 55s - Geopolítica", 
+    page_title="Kling AI 55s Creator", 
     page_icon="🎥", 
     layout="centered"
 )
@@ -43,7 +43,7 @@ prompt_final = st.text_area("Instrucciones de actuación e imagen para la IA:", 
 # Botón principal para activar la generación real
 if st.button("🚀 Generar Video de Actuación", type="primary", use_container_width=True):
     if KLING_API_KEY == "TU_KLING_API_KEY_AQUI":
-        st.error("Por favor, introduce tu API Key real de Kling AI en la línea 13 del código para poder generar.")
+        st.error("Por favor, introduce tu API Key real de Kling AI en la línea 17 del código para poder generar.")
     elif not prompt_final:
         st.error("Por favor, describe la escena geopolítica que deseas que la IA actúe.")
     else:
@@ -59,7 +59,7 @@ if st.button("🚀 Generar Video de Actuación", type="primary", use_container_w
             
             payload_task = {
                 "prompt": prompt_final,
-                "duration": 55, # Tus 55 segundos exactos
+                "duration": 55,  # Tus 55 segundos exactos
                 "aspect_ratio": "9:16",
                 "camera_control": "auto"
             }
@@ -67,7 +67,7 @@ if st.button("🚀 Generar Video de Actuación", type="primary", use_container_w
             # Endpoint oficial de tareas de Kling AI
             task_response = requests.post("https://klingai.com", json=payload_task, headers=headers, timeout=15)
             
-            if task_response.status_code in:
+            if task_response.status_code == 200 or task_response.status_code == 201:
                 task_data = task_response.json()
                 task_id = task_data.get("data", {}).get("task_id")
                 
@@ -99,7 +99,7 @@ if st.button("🚀 Generar Video de Actuación", type="primary", use_container_w
                     video_response = requests.get(video_ready_url, timeout=30)
                     video_bytes = video_response.content
                     
-                    st.success("✨ ¡Tu escena de video de 55 segundos está lista!")
+                    st.success("✨ ¡Tu escena de video de 55 segundos está listo!")
                     
                     # Reproductor nativo móvil usando los bytes descargados
                     st.video(video_bytes, format="video/mp4")
