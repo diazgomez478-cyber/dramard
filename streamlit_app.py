@@ -1,5 +1,8 @@
-# 🎬 GUION: LA ERA DE TRUMP y EL CONTROL DE PODER
+import streamlit as st
 
+st.title("🎬 Guion de YouTube")
+
+st.markdown("""
 📌 DETALLES DEL VIDEO:
 • Formato: Horizontal (16:9)
 • Duración: 1:30 - 2:00 min
@@ -39,3 +42,4 @@
 • VISUAL: Vuelve el presentador a cámara. Aparecen las tarjetas de YouTube para recomendar otros videos.
 • AUDIO: "El diseño del poder obliga a que, tarde o temprano, incluso los líderes más fuertes tengan que negociar si pierden las cámaras legislativas. Si te apasiona el ajedrez político mundial, dale un buen botón de Like, suscríbete y activa la campanita. Dime en los comentarios: ¿Crees que estos contrapesos son suficientes? ¡Te leo abajo!"
 • SFX: Música épica en aumento y sonido de campanita.
+""")
