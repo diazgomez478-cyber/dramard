@@ -66,7 +66,7 @@ if st.button("🚀 Generar Video de Actuación", type="primary", use_container_w
             }
             
             # Endpoint oficial de tareas de Kling AI
-            task_response = requests.post("https://klingai.com", json=payload_task, headers=headers, timeout=15)
+            task_response = requests.post("https://api-singapore.klingai.com/v1/videos/text2video", headers=headers, json=payload_task)
             
             if task_response.status_code == 200 or task_response.status_code == 201:
                 task_data = task_response.json()
@@ -78,11 +78,9 @@ if st.button("🚀 Generar Video de Actuación", type="primary", use_container_w
                 # Bucle de consulta cada 5 segundos (máximo 30 intentos = 2.5 minutos)
                 for intento in range(30): 
                     estado_placeholder.info(f"🎬 La IA está actuando y procesando la escena geopolítica... (Tiempo transcurrido: {intento * 5}s)")
-                    time.sleep(5)
                     
-                    status_response = requests.get(f"https://klingai.com/{task_id}", headers=headers, timeout=10)
                     status_data = status_response.json()
-                    
+                    status_response = requests.get(f"https://api-singapore.klingai.com/v1/videos/text2video/{task_id}", headers=headers)
                     task_status = status_data.get("data", {}).get("task_status")
                     
                     if task_status == "SUCCESS":
