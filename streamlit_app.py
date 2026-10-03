@@ -38,16 +38,15 @@ if st.button("🚀 Iniciar Generación de Video Real", type="primary", use_conta
         }
         
         try:
-            # Quitamos la simulación para llamar al servidor real
             respuesta_crear = requests.post(endpoint_crear, json=payload, headers=headers)
             
-            if respuesta_crear.status_code in:
+            # --- LÍNEA CORREGIDA AQUÍ ---
+            if respuesta_crear.status_code == 200:
                 id_tarea = respuesta_crear.json().get("task_id")
                 st.warning(f"⏳ Video en cola de renderizado. ID: {id_tarea}")
                 
                 # Barra de progreso interactiva en el móvil mientras la IA dibuja el video
                 barra_progreso = st.progress(0)
-                status_video = "processing"
                 video_url = None
                 
                 # Bucle de control para verificar el estado real en el servidor
@@ -84,7 +83,7 @@ if st.button("🚀 Iniciar Generación de Video Real", type="primary", use_conta
                 else:
                     st.error("⏱️ El servidor está tardando más de lo esperado. Intenta presionar el botón de nuevo.")
             else:
-                st.error(f"Error de API: {respuesta_crear.text}")
+                st.error(f"Error de API (Código {respuesta_crear.status_code}): {respuesta_crear.text}")
                 
         except Exception as e:
             st.error(f"Error crítico en la conexión móvil: {e}")
