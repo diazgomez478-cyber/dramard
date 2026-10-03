@@ -54,9 +54,11 @@ if st.button("🚀 Generar Video de Actuación", type="primary", use_container_w
         try:
             # --- PASO 1: ENVIAR SOLICITUD A LA API DE KLING AI ---
             headers = {
-                "Authorization": f"Bearer {KLING_API_KEY}",
-                "Content-Type": "application/json"
-            }
+    "Authorization": f"Bearer {KLING_API_KEY}",
+    "Content-Type": "application/json"
+}
+                
+            
             
             payload_task = {
                 "prompt": prompt_final,
