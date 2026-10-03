@@ -2,74 +2,89 @@ import streamlit as st
 import requests
 import time
 
-# Configuración móvil estilo cine
 st.set_page_config(page_title="Generador de Películas IA", page_icon="🎬", layout="centered")
-st.title("🎬 Generador Cinemático de Video (55s)")
-st.write("Genera y descarga tus escenas de película directamente en tu móvil.")
+st.title("🎬 Creador de Videos Cinemáticos")
+st.write("Genera y reproduce tus dramas de 55 segundos con estilo de película directamente en tu móvil.")
 
-# Configuración de tu API (Reemplaza con tu endpoint de Kling AI, Luma o Runway)
-API_URL = "https://klingai.com"  # Ejemplo de endpoint
-API_KEY = st.text_input("Introduce tu API Key de Video IA:", type="password")
+# Gestión de credenciales
+API_KEY = st.text_input("Introduce tu Kling AI API Key:", type="password")
 
-# Prompt cinemático por defecto basado en tu tema de Trump
-prompt_por_defecto = (
-    "A dramatic cinematic movie trailer scene, highly detailed 4k, "
-    "low-key moody lighting, slow motion 24fps, cinematic camera movement, "
-    "political thriller aesthetic, intense atmosphere."
+# Prompt cinemático basado en tu guión de la Era de Trump
+prompt_defecto = (
+    "Cinematic movie trailer style, intense political thriller, close up shot of a leader "
+    "looking worried in high contrast studio lighting, world maps background with glowing red "
+    "and blue lines, ultra realistic 4k, 24fps atmosphere."
 )
 
-prompt_usuario = st.text_area("Prompt cinematográfico de la película (en inglés):", value=prompt_por_defecto, height=120)
+prompt_usuario = st.text_area("Prompt de video para la película:", value=prompt_defecto, height=100)
 
-# Botón para accionar la generación del archivo de video real
-if st.button("🚀 Crear Video Estilo Película (55s)", type="primary", use_container_width=True):
+if st.button("🚀 Iniciar Generación de Video Real", type="primary", use_container_width=True):
     if not API_KEY:
-        st.warning("⚠️ Por favor, introduce tu API Key para poder conectar con el servidor de video.")
+        st.error("❌ Por favor, escribe tu API Key para poder procesar el video.")
     else:
-        st.info("🎬 Conectando con la IA de video... Enviando prompt de película.")
+        st.info("🛰️ Enviando escena al servidor de Kling AI...")
         
-        # Estructura de la petición a la API de video
+        # 1. Petición inicial para crear la tarea de video
+        endpoint_crear = "https://klingai.com"
         headers = {
             "Authorization": f"Bearer {API_KEY}",
             "Content-Type": "application/json"
         }
-        
         payload = {
             "prompt": prompt_usuario,
-            "duration": 55,  # Ajustado a tus 55 segundos preferidos
-            "aspect_ratio": "16:9", # Cambiar a "9:16" si lo quieres vertical para móvil
+            "duration": 55,       # Tu preferencia estricta de 55 segundos
+            "aspect_ratio": "16:9", # Formato de película horizontal
             "quality": "high"
         }
         
         try:
-            # 1. Enviar la solicitud de generación
-            # response = requests.post(API_URL, json=payload, headers=headers)
-            # task_id = response.json().get("task_id")
+            # Quitamos la simulación para llamar al servidor real
+            respuesta_crear = requests.post(endpoint_crear, json=payload, headers=headers)
             
-            # Simulando la espera del renderizado de la película en el servidor
-            progress_bar = st.progress(0)
-            for percent_complete in range(100):
-                time.sleep(0.05)  # Simulación de renderizado
-                progress_bar.progress(percent_complete + 1)
-            
-            st.success("✨ ¡Tu video cinematográfico ha sido generado con éxito!")
-            
-            # 2. Descarga del archivo de video resultante
-            # video_url = requests.get(f"https://klingai.com{task_id}", headers=headers).json().get("video_url")
-            # video_bytes = requests.get(video_url).content
-            
-            video_bytes_simulados = b"video data"  # Reemplazar con video_bytes reales de la API
-            
-            st.write("### 📥 Descarga tu video listo para YouTube:")
-            st.download_button(
-                label="⬇️ Descargar Video Película (.mp4)",
-                data=video_bytes_simulados,
-                file_name="escena_cinematica_55s.mp4",
-                mime="video/mp4",
-                use_container_width=True
-            )
-            
+            if respuesta_crear.status_code in:
+                id_tarea = respuesta_crear.json().get("task_id")
+                st.warning(f"⏳ Video en cola de renderizado. ID: {id_tarea}")
+                
+                # Barra de progreso interactiva en el móvil mientras la IA dibuja el video
+                barra_progreso = st.progress(0)
+                status_video = "processing"
+                video_url = None
+                
+                # Bucle de control para verificar el estado real en el servidor
+                for i in range(1, 101):
+                    time.sleep(2) # Pausa entre consultas para no saturar tu conexión
+                    barra_progreso.progress(i)
+                    
+                    # Consultar si el archivo ya está listo para descargar
+                    endpoint_estado = f"https://klingai.com{id_tarea}"
+                    check_status = requests.get(endpoint_estado, headers=headers).json()
+                    
+                    if check_status.get("status") == "completed":
+                        video_url = check_status.get("video_url")
+                        break
+                
+                # 2. Descarga e incrustación del archivo multimedia real
+                if video_url:
+                    st.success("✨ ¡Película generada exitosamente!")
+                    
+                    # Descargamos los bytes reales de la URL entregada por la IA
+                    video_bytes = requests.get(video_url).content
+                    
+                    # Renderizador de video integrado para que lo veas en la app sin salir de ella
+                    st.video(video_bytes)
+                    
+                    # Botón de descarga móvil funcional
+                    st.download_button(
+                        label="⬇️ Descargar Video de Película (.mp4)",
+                        data=video_bytes,
+                        file_name="drama_trump_55s.mp4",
+                        mime="video/mp4",
+                        use_container_width=True
+                    )
+                else:
+                    st.error("⏱️ El servidor está tardando más de lo esperado. Intenta presionar el botón de nuevo.")
+            else:
+                st.error(f"Error de API: {respuesta_crear.text}")
+                
         except Exception as e:
-            st.error(f"Error al conectar con el servidor de video: {e}")
-
-st.markdown("---")
-st.caption("Nota móvil: Asegúrate de tener saldo de créditos en tu cuenta de la API para procesar videos de alta calidad.")
+            st.error(f"Error crítico en la conexión móvil: {e}")
